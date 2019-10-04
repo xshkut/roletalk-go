@@ -27,6 +27,7 @@ func TestBinaryConversion(t *testing.T) {
 	t.Run("parse response message", testParseResponse)
 	t.Run("parse stream response message", testParseStreamResponse)
 	t.Run("conversions to binary from different types", testMarkDataType)
+	t.Run("testing semver compatibility", testSemverCompatibility)
 }
 
 func testSerializeCorrelation(t *testing.T) {
@@ -234,4 +235,13 @@ func testForwardAndReverseConversion(t *testing.T, compared interface{}, hardcod
 			}
 		}
 	})
+}
+
+func testSemverCompatibility(t *testing.T) {
+	assert.NilError(t, checkProtocolCompatibility("0.1.7", "0.9.4"))
+	assert.NilError(t, checkProtocolCompatibility("1.1.7", "1.1.7"))
+	assert.Error(t, checkProtocolCompatibility("1.1.7", "0.9.4"), errLocalVersionHigher)
+	assert.Error(t, checkProtocolCompatibility("1.1.7", "2.9.4"), errRemoteVersionHigher)
+	assert.ErrorContains(t, checkProtocolCompatibility("", "2.9.4"), errCantParseLocal)
+	assert.ErrorContains(t, checkProtocolCompatibility("13", "2.9.4"), errCantParseLocal)
 }

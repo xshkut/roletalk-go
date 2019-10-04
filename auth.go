@@ -11,6 +11,7 @@ import (
 	"runtime"
 	"time"
 
+	"github.com/blang/semver"
 	"github.com/pkg/errors"
 
 	"github.com/gorilla/websocket"
@@ -214,4 +215,27 @@ func (peer *Peer) generatePeerData() ([]byte, error) {
 		return nil, err
 	}
 	return marshaled, nil
+}
+
+var errRemoteVersionHigher = "Remote major version of roletalk protocol is higher and potentially backward-incompatible"
+var errLocalVersionHigher = "Remote major version of roletalk protocol is higher and potentially backward-incompatible"
+var errCantParseLocal = "cannot parse local semver value"
+var errCantParseRemote = "cannot parse remote semver value"
+
+func checkProtocolCompatibility(localVersion, remoteVersion string) error {
+	locVer, err := semver.Parse(localVersion)
+	if err != nil {
+		return errors.Wrap(err, errCantParseLocal)
+	}
+	remVer, err := semver.Parse(remoteVersion)
+	if err != nil {
+		return errors.Wrap(err, errCantParseRemote)
+	}
+	switch int(locVer.Major - remVer.Major) {
+	case -1:
+		return errors.New(errRemoteVersionHigher)
+	case 1:
+		return errors.New(errLocalVersionHigher)
+	}
+	return nil
 }

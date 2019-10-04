@@ -39,9 +39,10 @@ func (peer *Peer) addConn(conn *connLocker) (unit *Unit, err error) {
 		closeConnWithCode(conn, errAuthRejected, "auth rejected")
 		return
 	}
-	// if res.Meta.Protocol != protocolVersion {
-	// 	closeConnWithCode(conn, errIncompatibleProtocolVersion, fmt.Sprintf("incompatible protocol version. Need: %v", protocolVersion))
-	// }
+	if err := checkProtocolCompatibility(protocolVersion, res.Meta.Protocol); err != nil {
+		closeConnWithCode(conn, errIncompatibleProtocolVersion, err.Error())
+		return nil, err
+	}
 	_, unitExists := peer.getUnit(res.ID)
 	if unitExists == false {
 		peer.addUnit(peer.createUnit(res))
@@ -107,7 +108,7 @@ func (peer *Peer) getUnit(id string) (*Unit, bool) {
 func (peer *Peer) startReconnCycle(addr string) {
 	for {
 		uc, ok := peer.addrUnits.loadByAddress(addr)
-		if uc != nil || ok == false {
+		if uc.conn != nil || ok == false {
 			return
 		}
 		_, err := peer.Connect(addr, ConnectOptions{})

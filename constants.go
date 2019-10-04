@@ -7,7 +7,7 @@ type messageType byte
 const (
 	//restrictions
 	maxCorrelation  correlation = 1<<53 - 1
-	protocolVersion string      = "1"
+	protocolVersion string      = "1.0.0"
 	//timing
 	authTimeot        time.Duration = 5 * time.Second
 	heartBeatTimeout  time.Duration = 5 * time.Second
