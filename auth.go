@@ -217,8 +217,8 @@ func (peer *Peer) generatePeerData() ([]byte, error) {
 	return marshaled, nil
 }
 
-var errRemoteVersionHigher = "Remote major version of roletalk protocol is higher and potentially backward-incompatible"
-var errLocalVersionHigher = "Remote major version of roletalk protocol is higher and potentially backward-incompatible"
+var errRemoteVersionHigher = "Remote major version of roletalk protocol is higher than local one and potentially backward-incompatible"
+var errLocalVersionHigher = "Remote major version of roletalk protocol is higher than local one and potentially backward-incompatible"
 var errCantParseLocal = "cannot parse local semver value"
 var errCantParseRemote = "cannot parse remote semver value"
 

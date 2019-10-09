@@ -1,8 +1,11 @@
 package roletalk
 
-//DefaultPeer is default Peer instance
-var DefaultPeer *Peer
+var defaultPeer *Peer
 
-func init() {
-	DefaultPeer = NewPeer(PeerOptions{Name: "", Friendly: false})
+//Singleton returns singleton Peer instance
+func Singleton() *Peer {
+	if defaultPeer == nil {
+		defaultPeer = NewPeer(PeerOptions{Name: "", Friendly: false})
+	}
+	return defaultPeer
 }
