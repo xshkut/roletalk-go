@@ -38,28 +38,28 @@ type Peer struct {
 	roleHandlers  []roleHandler
 }
 
-//NewPeer creates a local node in your peer-to-peer architecture
+//NewPeer creates Peer, e.g. local node in your peer-to-peer architecture
 func NewPeer(opts PeerOptions) *Peer {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
-	uuid := fmt.Sprintf("%x-%x-%x-%x-%x",
-		b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
-	var name string
-	name = opts.Name
+	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	name := opts.Name
 	friendly := opts.Friendly
+
 	peer := &Peer{id: uuid, Name: name, Friendly: friendly, startTime: time.Now()}
 	peer.incMsgChan = make(chan *MessageContext)
 	peer.destinations = make(map[string]*Destination)
 	peer.roles = make(map[string]*Role)
 	peer.units = make(map[string]*Unit)
 	peer.addrUnits = newAddressScheme()
-	// peer.addressMap = make(map[string]*Unit)
+
 	for i := 0; i < runtime.NumCPU(); i++ {
 		go peer.consumeIncomingMessages()
 	}
+
 	return peer
 }
 

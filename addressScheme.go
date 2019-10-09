@@ -34,6 +34,7 @@ func (ca *addressScheme) store(address string, conn *connLocker, u *Unit) {
 		ca.addresses[address] = unitConn{u, conn}
 		ca.conns[conn] = address
 	case conn == nil && u == nil:
+		ca.addresses[address] = unitConn{}
 	case conn != nil && u == nil || conn == nil && u != nil:
 		panic("both conn and unit should be nil or should not be nil")
 	}
