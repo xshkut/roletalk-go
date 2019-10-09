@@ -36,7 +36,6 @@ func (dest *Destination) deleteUnit(unit *Unit) {
 		dest.stateMutex.Lock()
 		delete(dest.units, unit)
 		if len(dest.units) < 1 {
-			// fmt.Printf("dest %v closed\n", dest.Name)
 			dest.ready = false
 			go dest.runOnClose()
 		}

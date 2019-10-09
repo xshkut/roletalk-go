@@ -155,6 +155,7 @@ func (peer *Peer) serveIncMsg(ctx *MessageContext) {
 		ctx.unit.rolesMx.Lock()
 		ctx.unit.roles = newRoles
 		ctx.unit.rolesMx.Unlock()
+		// fmt.Println(newRoles)
 		go peer.onNewUnitRoles(ctx.unit)
 	case typeAcquaint:
 		am := acquaintMsg{}

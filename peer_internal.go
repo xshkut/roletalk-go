@@ -16,6 +16,7 @@ func (peer *Peer) getRole(name string) (*Role, bool) {
 func (peer *Peer) broadcastRoles() {
 	roles := peer.ListRoles()
 	units := peer.Units()
+	// fmt.Printf("Sending roles from %v, %v\n", peer.ID(), roles)
 	for _, unit := range units {
 		err := unit.sendRoles(roles)
 		_ = err
@@ -58,6 +59,7 @@ func (peer *Peer) addConn(conn *connLocker) (unit *Unit, err error) {
 
 func (peer *Peer) onNewUnitRoles(unit *Unit) {
 	var inDest bool
+	// fmt.Printf("receiving roles from %v, %v\n", unit.ID(), peer.ID())
 	for name, dest := range peer.destinations {
 		inDest = false
 		unit.rolesMx.RLock()
