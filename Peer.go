@@ -65,23 +65,29 @@ func NewPeer(opts PeerOptions) *Peer {
 
 //Connect establishes connection to remote peer and creates Unit
 func (peer *Peer) Connect(urlStr string, opts ...ConnectOptions) (unit *Unit, err error) {
+	var conn *connLocker
+
 	options := ConnectOptions{}
 	if len(opts) > 0 {
 		options = opts[0]
 	}
 	dialer := websocket.DefaultDialer
-	dialer.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
+	dialer.TLSClientConfig = &tls.Config{InsecureSkipVerify: options.InsecureTLS}
 	if options.Weak == false {
 		peer.addrUnits.store(urlStr, nil, nil)
 	}
+
 	c, _, err := dialer.Dial(urlStr, http.Header{})
 	if err != nil {
-		return nil, errors.Wrap(err, "Cannot dial to remote peer")
+		err = errors.Wrap(err, "Cannot dial to remote peer")
+		goto errCase
 	}
-	conn := createConnLocker(c)
+
+	conn = createConnLocker(c)
 	unit, err = peer.addConn(conn)
 	if err != nil {
-		return nil, errors.Wrap(err, "Cannot use connection to communicate")
+		err = errors.Wrap(err, "Cannot use connection to communicate")
+		goto errCase
 	}
 
 	if options.Weak == false {
@@ -90,6 +96,10 @@ func (peer *Peer) Connect(urlStr string, opts ...ConnectOptions) (unit *Unit, er
 		go unit.acquaintWithOthers()
 	}
 	return
+
+errCase:
+	go peer.startReconnCycle(urlStr)
+	return nil, err
 }
 
 //ListRoles returns all registered roles as list []string

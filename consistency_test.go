@@ -110,10 +110,10 @@ func testInitialRoles(t *testing.T) {
 func testDynamicRoles(t *testing.T) {
 	assert.Equal(t, peer2.Destination(dynamicRole).Ready(), false)
 	peer1.Role(dynamicRole)
-	time.Sleep(time.Millisecond * 20)
+	time.Sleep(time.Millisecond * 50)
 	assert.Equal(t, peer2.Destination(dynamicRole).Ready(), true)
 	peer1.Role(dynamicRole).Disable()
-	time.Sleep(time.Millisecond * 20)
+	time.Sleep(time.Millisecond * 50)
 	assert.Equal(t, peer2.Destination(dynamicRole).Ready(), false)
 }
 
