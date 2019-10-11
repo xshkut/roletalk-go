@@ -71,9 +71,11 @@ func (peer *Peer) Connect(urlStr string, opts ...ConnectOptions) (unit *Unit, er
 	if len(opts) > 0 {
 		options = opts[0]
 	}
+
 	dialer := websocket.DefaultDialer
 	dialer.TLSClientConfig = &tls.Config{InsecureSkipVerify: options.InsecureTLS}
-	if options.Weak == false {
+
+	if options.DoNotReconnect == false {
 		peer.addrUnits.store(urlStr, nil, nil)
 	}
 
@@ -90,15 +92,20 @@ func (peer *Peer) Connect(urlStr string, opts ...ConnectOptions) (unit *Unit, er
 		goto errCase
 	}
 
-	if options.Weak == false {
+	if options.DoNotReconnect == false {
 		peer.addrUnits.store(urlStr, conn, unit)
+	}
+	if options.DoNotAcquaint == false {
 		go peer.introduceUnitToOthers(unit, urlStr)
 		go unit.acquaintWithOthers()
 	}
+
 	return
 
 errCase:
-	go peer.startReconnCycle(urlStr)
+	if options.DoNotReconnect == false {
+		go peer.startReconnCycle(urlStr, true)
+	}
 	return nil, err
 }
 

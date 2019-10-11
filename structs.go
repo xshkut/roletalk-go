@@ -18,8 +18,9 @@ type PeerOptions struct {
 
 //ConnectOptions specifies options for outgoing connection
 type ConnectOptions struct {
-	Weak        bool //set true if connection is not supposed to reconnect after abort. Weak connection is not introduced to other friendly units
-	InsecureTLS bool
+	DoNotReconnect bool //set true if connection is not supposed to reconnect after abort
+	DoNotAcquaint  bool //set true if connection is not supposed to be introduced to remote peers nor to be acquainted with remote peers' by their addresses
+	InsecureTLS    bool
 }
 
 type middlewareMessageMap struct {

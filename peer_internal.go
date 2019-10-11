@@ -107,16 +107,22 @@ func (peer *Peer) getUnit(id string) (*Unit, bool) {
 	return u, ok
 }
 
-func (peer *Peer) startReconnCycle(addr string) {
+func (peer *Peer) startReconnCycle(addr string, waitFirst bool) {
+	if waitFirst {
+		time.Sleep(reconnInterval)
+	}
+
 	for {
 		uc, ok := peer.addrUnits.loadByAddress(addr)
 		if uc.conn != nil || ok == false {
 			return
 		}
-		_, err := peer.Connect(addr, ConnectOptions{})
+
+		_, err := peer.Connect(addr, ConnectOptions{DoNotReconnect: true})
 		if err == nil {
 			return
 		}
+
 		time.Sleep(reconnInterval)
 	}
 }

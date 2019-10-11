@@ -152,7 +152,7 @@ func (unit *Unit) deleteConnection(conn *connLocker, err error) {
 	}
 	if addr, ok := peer.addrUnits.loadByConn(conn); ok == true {
 		peer.addrUnits.unbindAddr(addr)
-		go peer.startReconnCycle(addr)
+		go peer.startReconnCycle(addr, false)
 	}
 }
 

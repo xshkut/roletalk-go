@@ -12,7 +12,7 @@ const (
 	authTimeot        time.Duration = 5 * time.Second
 	heartBeatTimeout  time.Duration = 5 * time.Second
 	heartBeatInterval time.Duration = 10 * time.Second
-	reconnInterval    time.Duration = 15 * time.Second
+	reconnInterval    time.Duration = 1 * time.Second
 	requestTimeout    time.Duration = 10 * time.Minute
 
 	//protocol
