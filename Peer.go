@@ -256,3 +256,11 @@ func (peer *Peer) OnRole(f func(role *Role)) {
 func (peer *Peer) ID() string {
 	return peer.id
 }
+
+
+//ConnectOptions specifies options for outgoing connection
+type ConnectOptions struct {
+	DoNotReconnect bool //set true if connection is not supposed to reconnect after abort
+	DoNotAcquaint  bool //set true if connection is not supposed to be introduced to remote peers nor to be acquainted with remote peers' by their addresses
+	InsecureTLS    bool //set true if TLS errors are supposed to be ignored for outgoing connection
+}

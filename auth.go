@@ -198,7 +198,7 @@ func (peer *Peer) verifyResponse(challenge string, raw []byte) error {
 			originalHmac.Write([]byte(challenge))
 			computed := hex.EncodeToString(originalHmac.Sum(nil))
 			if computed != proofAndID.Proof {
-				return fmt.Errorf("Hashes for proof with id %v are not equal", proofAndID.Proof)
+				return fmt.Errorf("Hashes for proof with id %v are not equal", proofAndID.ID)
 			}
 			return nil
 		}

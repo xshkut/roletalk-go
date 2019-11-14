@@ -16,13 +16,6 @@ type PeerOptions struct {
 	Friendly bool
 }
 
-//ConnectOptions specifies options for outgoing connection
-type ConnectOptions struct {
-	DoNotReconnect bool //set true if connection is not supposed to reconnect after abort
-	DoNotAcquaint  bool //set true if connection is not supposed to be introduced to remote peers nor to be acquainted with remote peers' by their addresses
-	InsecureTLS    bool
-}
-
 type middlewareMessageMap struct {
 	mx sync.RWMutex
 	m  map[string][]MessageHandler
