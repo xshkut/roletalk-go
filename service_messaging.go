@@ -13,12 +13,17 @@ type acquaintMsg struct {
 	Roles   []string `json:"roles"`
 }
 
+type roleMsg struct {
+	I     int      `json:"i"`
+	Roles []string `json:"roles"`
+}
+
 func closeConnWithCode(conn *connLocker, code int, message string) error {
 	return conn.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(code, message), time.Now().Add(heartBeatTimeout))
 }
 
-func (unit *Unit) sendRoles(roles []string) error {
-	str, err := json.Marshal(roles)
+func (unit *Unit) sendRoles(i int, roles []string) error {
+	str, err := json.Marshal(roleMsg{i, roles})
 	if err != nil {
 		return err
 	}

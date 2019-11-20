@@ -144,18 +144,24 @@ func (peer *Peer) serveIncMsg(ctx *MessageContext) {
 		go ctx.unit.callbackCtr.respond(corr, &callback{err: errors.New(string(rawData)), ctx: ctx})
 	case typeRoles:
 		roles, err := parseRoles(ctx.raw)
+		if roles.I <= ctx.Unit().getLastRoleSession() {
+			return
+		}
+
+		ctx.Unit().setLastRoleSession(roles.I)
 		if err != nil {
 			go closeConnWithCode(ctx.conn, errIncorrectMessageStructure, fmt.Sprintf("wrong roles message message: %v", string(ctx.raw)))
 			return
 		}
 		newRoles := make(map[string]interface{})
-		for _, role := range roles {
+		for _, role := range roles.Roles {
 			newRoles[role] = struct{}{}
 		}
+
 		ctx.unit.rolesMx.Lock()
 		ctx.unit.roles = newRoles
 		ctx.unit.rolesMx.Unlock()
-		// fmt.Println(newRoles)
+
 		go peer.onNewUnitRoles(ctx.unit)
 	case typeAcquaint:
 		am := acquaintMsg{}

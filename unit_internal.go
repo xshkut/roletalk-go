@@ -472,3 +472,16 @@ func sendSignal(ch chan<- interface{}) {
 	default:
 	}
 }
+
+func (unit *Unit) setLastRoleSession(i int) {
+	unit.rolesMx.Lock()
+	unit.lastRoleSession = i
+	unit.rolesMx.Unlock()
+}
+
+func (unit *Unit) getLastRoleSession() int {
+	unit.rolesMx.RLock()
+	i := unit.lastRoleSession
+	unit.rolesMx.RUnlock()
+	return i
+}

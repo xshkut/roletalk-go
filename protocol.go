@@ -141,7 +141,7 @@ func parseStreamResponse(raw []byte) (corr correlation, channel correlation, dat
 	return
 }
 
-func parseRoles(raw []byte) (roles []string, err error) {
+func parseRoles(raw []byte) (roles roleMsg, err error) {
 	err = json.Unmarshal(raw, &roles)
 	return
 }

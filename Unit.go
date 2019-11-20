@@ -6,25 +6,26 @@ import (
 
 //Unit represents remote peer
 type Unit struct {
-	peer          *Peer
-	id            string
-	name          string
-	friendly      bool
-	meta          MetaInfo
-	roles         map[string]interface{}
-	rolesMx       sync.RWMutex
-	connections   sync.Map
-	connsMx       sync.RWMutex
-	streamCtr     streamController
-	callbackCtr   reqCallbackController
-	closeHandlers []func(err error)
+	peer            *Peer
+	id              string
+	name            string
+	friendly        bool
+	meta            MetaInfo
+	roles           map[string]interface{}
+	rolesMx         sync.RWMutex
+	connections     sync.Map
+	connsMx         sync.RWMutex
+	streamCtr       streamController
+	callbackCtr     reqCallbackController
+	closeHandlers   []func(err error)
+	lastRoleSession int
 }
 
 //Close all underlying connections
 func (unit *Unit) Close() {
 	unit.peer.addrUnits.deleteUnit(unit)
 	unit.callbackCtr.onClose()
-	unit.closeWithCode(errManualClose, "method .Close() called")
+	unit.closeWithCode(errManualClose, "closed by demand")
 }
 
 //GetRoles returns list of roles the unit serves

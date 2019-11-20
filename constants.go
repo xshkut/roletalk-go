@@ -5,9 +5,9 @@ import "time"
 type messageType byte
 
 const (
+	protocolVersion string = "2.0.0"
 	//restrictions
-	maxCorrelation  correlation = 1<<53 - 1
-	protocolVersion string      = "1.0.0"
+	maxCorrelation correlation = 1<<53 - 1
 	//timing
 	authTimeot        time.Duration = 5 * time.Second
 	heartBeatTimeout  time.Duration = 5 * time.Second
@@ -52,9 +52,9 @@ const (
 	errIncompatibleProtocolVersion = 4007
 
 	//errorMessages
-	errStrOnceResponded     = "Already responded"
-	errNonPositiveWaterMark = "Cannot set HighWaterMark <= 0"
-	errConnClosed           = "Connection closed"
+	errStrOnceResponded = "Already responded"
+	// errNonPositiveWaterMark = "Cannot set HighWaterMark <= 0"
+	errConnClosed = "Connection closed"
 
 	// defaults
 	defQuotaThreshold float64 = 0.66

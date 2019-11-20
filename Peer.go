@@ -18,24 +18,25 @@ import (
 
 //Peer is the local node of your peer-to-peer architecture
 type Peer struct {
-	Name          string
-	id            string
-	Friendly      bool
-	units         map[string]*Unit
-	roles         map[string]*Role
-	destinations  map[string]*Destination
-	addrUnits     *addressScheme
-	servers       []*http.Server
-	alive         sync.WaitGroup
-	presharedKeys []PresharedKey
-	incMsgChan    chan *MessageContext
-	startTime     time.Time
-	roleRWMutex   sync.RWMutex
-	destRWMutex   sync.RWMutex
-	unitRWMutex   sync.RWMutex
-	closeHandlers []func()
-	unitHandlers  []unitHandler
-	roleHandlers  []roleHandler
+	Name            string
+	id              string
+	Friendly        bool
+	units           map[string]*Unit
+	roles           map[string]*Role
+	destinations    map[string]*Destination
+	addrUnits       *addressScheme
+	servers         []*http.Server
+	alive           sync.WaitGroup
+	presharedKeys   []PresharedKey
+	incMsgChan      chan *MessageContext
+	startTime       time.Time
+	roleRWMutex     sync.RWMutex
+	destRWMutex     sync.RWMutex
+	unitRWMutex     sync.RWMutex
+	closeHandlers   []func()
+	unitHandlers    []unitHandler
+	roleHandlers    []roleHandler
+	lastRolesChange int
 }
 
 //NewPeer creates Peer, e.g. local node in your peer-to-peer architecture
@@ -256,7 +257,6 @@ func (peer *Peer) OnRole(f func(role *Role)) {
 func (peer *Peer) ID() string {
 	return peer.id
 }
-
 
 //ConnectOptions specifies options for outgoing connection
 type ConnectOptions struct {

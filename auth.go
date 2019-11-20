@@ -48,6 +48,7 @@ func (peer *Peer) authenticateWS(conn *connLocker) (peerData, error) {
 	var success = make(chan peerData)
 	var fail = make(chan error)
 	data := peerData{}
+
 	go func() {
 		data, err := peer.startAuthWSHandshake(conn)
 		if err != nil {
@@ -55,6 +56,7 @@ func (peer *Peer) authenticateWS(conn *connLocker) (peerData, error) {
 		}
 		success <- data
 	}()
+
 	select {
 	case data := <-success:
 		return data, nil
@@ -66,11 +68,12 @@ func (peer *Peer) authenticateWS(conn *connLocker) (peerData, error) {
 }
 
 func (peer *Peer) startAuthWSHandshake(conn *connLocker) (peerData, error) {
-	confirmedIn := false
-	confirmedOut := false
+	var confirmedIn bool
+	var confirmedOut bool
 	var challenge string
 	var err error
-	res := peerData{}
+	var res peerData
+
 	if len(peer.presharedKeys) > 0 {
 		var msg string
 		msg, challenge, err = peer.generateChallengeWithIds()
@@ -91,6 +94,7 @@ func (peer *Peer) startAuthWSHandshake(conn *connLocker) (peerData, error) {
 			return res, errors.Wrap(err, "Cannot send confirmation to remote peer")
 		}
 	}
+
 	for {
 		_, p, err := conn.ReadMessage()
 		if err != nil {
@@ -136,7 +140,7 @@ func (peer *Peer) startAuthWSHandshake(conn *connLocker) (peerData, error) {
 	}
 }
 
-//AddKey ...
+//AddKey adds provided authentication key with corresponded id. Only peers with matched id's will proceed to futher authentication. Peers without keys at all will approve each other by default.
 func (peer *Peer) AddKey(id, key string) {
 	peer.presharedKeys = append(peer.presharedKeys, PresharedKey{id, key})
 }

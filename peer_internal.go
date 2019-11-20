@@ -18,9 +18,16 @@ func (peer *Peer) broadcastRoles() {
 	units := peer.Units()
 	// fmt.Printf("Sending roles from %v, %v\n", peer.ID(), roles)
 	for _, unit := range units {
-		err := unit.sendRoles(roles)
+		err := unit.sendRoles(peer.incRolesBroadcastSession(), roles)
 		_ = err
 	}
+}
+
+func (peer *Peer) incRolesBroadcastSession() int {
+	peer.roleRWMutex.Lock()
+	peer.lastRolesChange = peer.lastRolesChange + 1
+	defer peer.roleRWMutex.Unlock()
+	return peer.lastRolesChange
 }
 
 func (peer *Peer) createUnit(res peerData) *Unit {

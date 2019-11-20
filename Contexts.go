@@ -313,12 +313,12 @@ func (r *Readable) addQuota(q int) (err error) {
 	return
 }
 
-func (r *Readable) setWaterMark(n int) {
-	if n <= 0 {
-		panic(errors.New(errNonPositiveWaterMark))
-	}
-	r.quotaSize = n
-}
+// func (r *Readable) setWaterMark(n int) {
+// 	if n <= 0 {
+// 		panic(errors.New(errNonPositiveWaterMark))
+// 	}
+// 	r.quotaSize = n
+// }
 
 //Destroy sends err to writable end and closes stream
 func (r *Readable) Destroy(err error) error {
