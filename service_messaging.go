@@ -13,7 +13,7 @@ type acquaintMsg struct {
 	Roles   []string `json:"roles"`
 }
 
-type roleMsg struct {
+type rolesMsg struct {
 	I     int      `json:"i"`
 	Roles []string `json:"roles"`
 }
@@ -23,7 +23,7 @@ func closeConnWithCode(conn *connLocker, code int, message string) error {
 }
 
 func (unit *Unit) sendRoles(i int, roles []string) error {
-	str, err := json.Marshal(roleMsg{i, roles})
+	str, err := json.Marshal(rolesMsg{i, roles})
 	if err != nil {
 		return err
 	}

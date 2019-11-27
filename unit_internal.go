@@ -293,7 +293,7 @@ func (unit *Unit) readConnMessages(conn *connLocker, ch chan<- *MessageContext) 
 				streamCHannel.mx.Unlock()
 				sendSignal(streamCHannel.signal)
 			}
-			// buf.ReadFrom(reader)
+
 			continue
 		}
 		//handling messages
