@@ -49,8 +49,10 @@ func (unit *Unit) HasRole(name string) bool {
 	return has
 }
 
-//Connected returns true if unit's underlying conn's were not been closed.
+//Connected returns true if unit's underlying conn's have not been closed.
 //If all conns's are closed or there was at least a moment when all conn's were closed, Connected returns false
+//
+//Explanation: when all connections of a unit are closed, Peer gets rid of the unit. But you could still keep referrence to it. When unit gets reconnected, a new instance of type Unit is created, possibly with different ID. So Connected() method can be used to check whether unit is still attached to Peer. That's the reason why Unit has no communication methods.
 func (unit *Unit) Connected() bool {
 	u := unit.peer.Unit(unit.id)
 	return u == unit

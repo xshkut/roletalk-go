@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-//Destination represents a role (service name) of remote peers (units).
-//Destination is used as gateway for outgoing communication. It implements round-robin client-site load balancing. To communicate with specific remote peer (unit) use EmitOptions
+//Destination represents a role (a service name) of remote peers (units).
+//Destination is used as a gateway for outgoing communication. It implements round-robin load balancing between units. To communicate with specific remote peer (unit) use EmitOptions
 type Destination struct {
 	name          string
 	peer          *Peer
@@ -18,7 +18,7 @@ type Destination struct {
 	unitHandlers  []unitHandler
 }
 
-//Name returns name of destination. It represents the name of corresponding role of remote peers (units)
+//Name returns Destination's name
 func (dest *Destination) Name() string {
 	dest.stateMutex.RLock()
 	name := dest.name
@@ -26,7 +26,7 @@ func (dest *Destination) Name() string {
 	return name
 }
 
-//HasUnit returns true if provided unit serves a role with a name corresponding to the destination
+//HasUnit returns true if provided unit serves a role with Destination's name
 func (dest *Destination) HasUnit(unit *Unit) bool {
 	dest.stateMutex.RLock()
 	_, ok := dest.units[unit]
@@ -34,7 +34,7 @@ func (dest *Destination) HasUnit(unit *Unit) bool {
 	return ok
 }
 
-//Units returns slice of all units which serve the role
+//Units returns slice of all connected units serving corresponding role
 func (dest *Destination) Units() []*Unit {
 	dest.stateMutex.RLock()
 	un := make([]*Unit, len(dest.units))
@@ -47,7 +47,7 @@ func (dest *Destination) Units() []*Unit {
 	return un
 }
 
-//Ready indicates whether destination has connected units or not
+//Ready indicates whether Destination has connected units
 func (dest *Destination) Ready() bool {
 	dest.stateMutex.RLock()
 	ready := dest.ready
@@ -69,7 +69,7 @@ func (dest *Destination) Send(event string, opts EmitOptions) error {
 	return unit.send(emitStruct{event: event, role: dest.name, timeout: opts.Timeout, data: opts.Data})
 }
 
-//Request sends request message to remote peer (Unit). Returns error if remote peer rejected the request or request timed out
+//Request emits request message to remote peer (Unit). Returns error if remote peer rejected the request or request timed out, otherwise returns response context
 func (dest *Destination) Request(event string, opts EmitOptions) (res *MessageContext, err error) {
 	var unit *Unit
 	if opts.Unit != nil {
@@ -82,7 +82,7 @@ func (dest *Destination) Request(event string, opts EmitOptions) (res *MessageCo
 	return unit.request(emitStruct{event: event, role: dest.name, timeout: opts.Timeout, data: opts.Data, ignoreUnitClose: opts.IgnoreUnitClose})
 }
 
-//NewReader sends request to remote peer (Unit) to establish stream session. This end of the stream is readable.
+//NewReader requests for creating binary stream session and returns its readable end.
 //Returns error if remote peer rejected the request or request timed out
 func (dest *Destination) NewReader(event string, opts EmitOptions) (res *MessageContext, r *Readable, err error) {
 	var unit *Unit
@@ -96,7 +96,7 @@ func (dest *Destination) NewReader(event string, opts EmitOptions) (res *Message
 	return unit.newReader(emitStruct{event: event, role: dest.name, timeout: opts.Timeout, data: opts.Data, ignoreUnitClose: opts.IgnoreUnitClose})
 }
 
-//NewWriter sends request to remote peer (Unit) to establish stream session. This end of the stream is readable.
+//NewWriter requests for creating binary stream session and returns its writable end.
 //Returns error if remote peer rejected the request or request timed out
 func (dest *Destination) NewWriter(event string, opts EmitOptions) (res *MessageContext, writable *Writable, err error) {
 	var unit *Unit
@@ -110,22 +110,23 @@ func (dest *Destination) NewWriter(event string, opts EmitOptions) (res *Message
 	return unit.newWriter(emitStruct{event: event, role: dest.name, timeout: opts.Timeout, data: opts.Data, ignoreUnitClose: opts.IgnoreUnitClose})
 }
 
-//OnClose adds handler function f which runs synchronosly with other close handlers of the destination in FIFO order when Destination losts last unit
+//OnClose adds handler function f which runs synchronosly with other close handlers in FIFO order when last Unit gets disconnected
 func (dest *Destination) OnClose(f func()) {
 	dest.stateMutex.Lock()
 	dest.closeHandlers = append(dest.closeHandlers, f)
 	dest.stateMutex.Unlock()
 }
 
-//OnUnit adds handler function f which executes synchronosly with other unit handlers of the destination in FIFO order when Destination gets new unit
+//OnUnit adds handler function f which executes synchronosly with other unit handlers in FIFO order when it gets new unit
 func (dest *Destination) OnUnit(f func(unit *Unit)) {
 	dest.stateMutex.Lock()
 	dest.unitHandlers = append(dest.unitHandlers, f)
 	dest.stateMutex.Unlock()
 }
 
-//EmitOptions determines Data to send and options for transferring it. All fields are optional
-//specify Unit to send data to; Timeout for callback (ignored for Send and Broadcast);
+//EmitOptions determines Data to send and additional transfer options. All fields are optional.
+//Specify Unit to send data to; Timeout for callback (Timeout option is ignored for Send and Broadcast methods);
+//If IgnoreUnitClose is true, request will not be rejected internally when communicated unit disconnects, but timeout will still has its place.
 type EmitOptions struct {
 	Data            interface{}
 	Unit            *Unit

@@ -16,18 +16,18 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-//Peer is the local node of your peer-to-peer architecture
+//Peer represents the local node in your peer-to-peer architecture. Create Peer with NewPeer() only. It is recommended to use Singleton() instance instead.
 type Peer struct {
 	Name            string
+	Friendly        bool //Friendly means that Peer will follow acquaint messages from remote peers (Units) and connect to them if it isn't connected yet
 	id              string
-	Friendly        bool
 	units           map[string]*Unit
 	roles           map[string]*Role
 	destinations    map[string]*Destination
 	addrUnits       *addressScheme
 	servers         []*http.Server
 	alive           sync.WaitGroup
-	presharedKeys   []PresharedKey
+	presharedKeys   []presharedKey
 	incMsgChan      chan *MessageContext
 	startTime       time.Time
 	roleRWMutex     sync.RWMutex
@@ -39,18 +39,18 @@ type Peer struct {
 	lastRolesChange int
 }
 
-//NewPeer creates Peer, e.g. local node in your peer-to-peer architecture
+//NewPeer creates Peer and initializes its internal state
 func NewPeer(opts PeerOptions) *Peer {
 	b := make([]byte, 16)
 	_, err := rand.Read(b)
 	if err != nil {
 		panic(err)
 	}
-	uuid := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	id := fmt.Sprintf("%x-%x-%x-%x-%x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
 	name := opts.Name
 	friendly := opts.Friendly
 
-	peer := &Peer{id: uuid, Name: name, Friendly: friendly, startTime: time.Now()}
+	peer := &Peer{id: id, Name: name, Friendly: friendly, startTime: time.Now()}
 	peer.incMsgChan = make(chan *MessageContext)
 	peer.destinations = make(map[string]*Destination)
 	peer.roles = make(map[string]*Role)
@@ -110,7 +110,7 @@ errCase:
 	return nil, err
 }
 
-//ListRoles returns all registered roles as list []string
+//ListRoles returns all registered roles
 func (peer *Peer) ListRoles() []string {
 	peer.roleRWMutex.RLock()
 	sl := make([]string, len(peer.roles))
@@ -126,7 +126,7 @@ func (peer *Peer) ListRoles() []string {
 	return sl[0:i]
 }
 
-//ListDestinations returns all registered destinations as list []string
+//ListDestinations returns all registered destinations
 func (peer *Peer) ListDestinations() []string {
 	peer.destRWMutex.RLock()
 	sl := make([]string, len(peer.destinations))
@@ -154,7 +154,7 @@ func (peer *Peer) Role(name string) *Role {
 	return role
 }
 
-//Destination returns Destination with provided name or first creates it if such does not exist
+//Destination returns Destination with provided name or first creates it if such does not exist.
 //Destination prepresents corresponding remote peers' roles
 func (peer *Peer) Destination(name string) *Destination {
 	peer.destRWMutex.Lock()
@@ -178,7 +178,7 @@ func (peer *Peer) Destination(name string) *Destination {
 	return peer.destinations[name]
 }
 
-//Units returns map for all connected units of the Peer
+//Units returns all connected units of the Peer
 func (peer *Peer) Units() []*Unit {
 	peer.unitRWMutex.RLock()
 	defer peer.unitRWMutex.RUnlock()
@@ -209,7 +209,7 @@ func (peer *Peer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	peer.InvolveConn(c)
 }
 
-//Listen to incoming connections
+//Listen to incoming connections. Creates new http.Server and blocks till it listens
 func (peer *Peer) Listen(address string) (net.Addr, error) {
 	server := &http.Server{Handler: peer, Addr: address}
 	peer.servers = append(peer.servers, server)
@@ -239,14 +239,14 @@ func (peer *Peer) WaitForClose() {
 	peer.alive.Wait()
 }
 
-//OnUnit adds unit handler function f which executes synchronosly with other unit handlers of the Peer in FIFO order when Peer gets new Unit
+//OnUnit adds unit handler function f which executes synchronosly with other unit handlers in FIFO order when Peer gets new Unit
 func (peer *Peer) OnUnit(f func(unit *Unit)) {
 	peer.unitRWMutex.Lock()
 	peer.unitHandlers = append(peer.unitHandlers, f)
 	peer.unitRWMutex.Unlock()
 }
 
-//OnRole adds role handler function f which executes synchronosly with other role handlers of the Peer in FIFO order when Peer gets new Role
+//OnRole adds role handler function f which executes synchronosly with other role handlers in FIFO order when Peer gets new Role
 func (peer *Peer) OnRole(f func(role *Role)) {
 	peer.roleRWMutex.Lock()
 	peer.roleHandlers = append(peer.roleHandlers, f)
@@ -261,6 +261,6 @@ func (peer *Peer) ID() string {
 //ConnectOptions specifies options for outgoing connection
 type ConnectOptions struct {
 	DoNotReconnect bool //set true if connection is not supposed to reconnect after abort
-	DoNotAcquaint  bool //set true if connection is not supposed to be introduced to remote peers nor to be acquainted with remote peers' by their addresses
-	InsecureTLS    bool //set true if TLS errors are supposed to be ignored for outgoing connection
+	DoNotAcquaint  bool //set true if connection is not supposed to be introduced to remote peers nor to be acquainted with remote peers
+	InsecureTLS    bool //set true if TLS errors are supposed to be ignoredt
 }

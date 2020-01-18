@@ -57,6 +57,6 @@ const (
 	errConnClosed = "Connection closed"
 
 	// defaults
-	defQuotaThreshold float64 = 0.66
-	defQuotaSizeBytes         = 1024 * 16
+	defStreamQuotaThreshold float64 = 0.66
+	defQuotaSizeBytes               = 1024 * 16
 )

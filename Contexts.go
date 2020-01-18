@@ -14,36 +14,37 @@ type OriginData struct {
 	Data []byte
 }
 
-//MessageContext is context for one-way message and responses, including ones for readable and writable streams.
-//T and Data are allowed to be changed by middleware. To get original data call OriginData().
+//MessageContext is context for all types of incoming messages, including ones for readable and writable streams.
+//Data option is allowed to be changed by middleware. To get original data call OriginData().
+//Note: MessageContext has no relation to type Context (https://golang.org/pkg/context/#Context)
 type MessageContext struct {
 	conn    *connLocker
 	unit    *Unit
 	role    string
 	event   string
-	Data    interface{}
+	Data    interface{} //Payload of message. Feel free to be change it on your needs
 	origin  OriginData
 	w       byte
 	raw     []byte
-	channel correlation //specific for streams
+	channel correlation //specific for stream responses. Used here to prevent code complication
 }
 
-//Role ...
+//Role returns the role which message is addressed to
 func (ctx *MessageContext) Role() string {
 	return ctx.role
 }
 
-//Event ...
+//Event returns the message's event name
 func (ctx *MessageContext) Event() string {
 	return ctx.event
 }
 
-//Unit ...
+//Unit returns Unit who sent the message
 func (ctx *MessageContext) Unit() *Unit {
 	return ctx.unit
 }
 
-//Conn ...
+//Conn returns underlying connections which was used to transfer the message
 func (ctx *MessageContext) Conn() *websocket.Conn {
 	return ctx.conn.conn
 }
@@ -52,16 +53,15 @@ func (ctx *MessageContext) String() string {
 	return string(ctx.origin.Data)
 }
 
-//OriginData returns unchanged received context's data.
+//OriginData returns unchanged context's data.
 func (ctx *MessageContext) OriginData() OriginData {
 	return ctx.origin
 }
 
-//RequestContext ...
-//Implements Reply(), Reject()
+//RequestContext is context for incoming requests
 type RequestContext struct {
 	*MessageContext
-	//specific for Request
+
 	Res  interface{}
 	Err  error
 	corr correlation
@@ -69,7 +69,7 @@ type RequestContext struct {
 	cbs  []RequestHandler
 }
 
-//Reply stops middleware flow and responds to the message. If data argument is provided, it overwrites im.Data
+//Reply stops middleware flow and responds to the message. If data argument is provided, it overrides Data option
 func (ctx *RequestContext) Reply(data interface{}) error {
 	var t byte
 	var d interface{}
@@ -101,7 +101,7 @@ func (ctx *RequestContext) Reply(data interface{}) error {
 	return err
 }
 
-//Reject responds to request with error; data can be error, string or nil
+//Reject responds to request with error; data can be error, string or nil. If Err argument is nil, Err option will be taken for rejection
 func (ctx *RequestContext) Reject(data interface{}) error {
 	ctx.r = true
 	switch d := data.(type) {
@@ -127,7 +127,7 @@ func (ctx *RequestContext) OriginData() OriginData {
 	return ctx.origin
 }
 
-//Then binds middleware to message context. All middleware runs in LIFO order
+//Then binds middleware to message context. Middleware runs in LIFO order
 func (ctx *RequestContext) Then(cb func(ctx *RequestContext)) {
 	ctx.cbs = append(ctx.cbs, cb)
 }
@@ -140,7 +140,7 @@ func (ctx *RequestContext) runCallbacks() {
 	}
 }
 
-//ReaderRequestContext ...
+//ReaderRequestContext is context for incoming request to establish binary stream readable on this end
 type ReaderRequestContext struct {
 	*RequestContext
 	cbs []ReadableRequestHandler
@@ -193,18 +193,18 @@ func (ctx *ReaderRequestContext) Reply(data interface{}) (*Readable, error) {
 	return readable, nil
 }
 
-//Then binds middleware to message context. All middleware runs in LIFO order
+//Then binds middleware to message context. Middleware runs in LIFO order
 func (ctx *ReaderRequestContext) Then(cb func(ctx *ReaderRequestContext)) {
 	ctx.cbs = append(ctx.cbs, cb)
 }
 
-//WriterRequestContext ...
+//WriterRequestContext is context for incoming request to establish binary stream writable on this end
 type WriterRequestContext struct {
 	*RequestContext
 	cbs []WritableRequestHandler
 }
 
-//Then binds middleware to message context. All middleware runs in LIFO order
+//Then binds middleware to message context. Middleware runs in LIFO order
 func (ctx *WriterRequestContext) Then(cb func(ctx *WriterRequestContext)) {
 	ctx.cbs = append(ctx.cbs, cb)
 }
@@ -276,7 +276,7 @@ func (r *Readable) Read(p []byte) (n int, err error) {
 	switch {
 	case n != 0:
 		q := r.addRemQuota(-n)
-		if float64(q) < float64(r.quotaSize)*defQuotaThreshold {
+		if float64(q) < float64(r.quotaSize)*defStreamQuotaThreshold {
 			go r.addQuota(r.quotaSize - q)
 		}
 		return n, nil
@@ -313,14 +313,7 @@ func (r *Readable) addQuota(q int) (err error) {
 	return
 }
 
-// func (r *Readable) setWaterMark(n int) {
-// 	if n <= 0 {
-// 		panic(errors.New(errNonPositiveWaterMark))
-// 	}
-// 	r.quotaSize = n
-// }
-
-//Destroy sends err to writable end and closes stream
+//Destroy sends err end and closes stream
 func (r *Readable) Destroy(err error) error {
 	errMsg := append(r.pref[0:len(r.pref)-1], streamByteError)
 	errMsg = append(errMsg, []byte(err.Error())...)
@@ -402,7 +395,7 @@ func (w *Writable) Close() error {
 	return err
 }
 
-//Destroy sends err to readable end and closes stream
+//Destroy sends err end and closes stream
 func (w *Writable) Destroy(err error) error {
 	errMsg := append(w.pref[0:len(w.pref)-1], streamByteError)
 	errMsg = append(errMsg, []byte(err.Error())...)

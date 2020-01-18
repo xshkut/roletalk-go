@@ -5,8 +5,7 @@ import (
 )
 
 //Role represents a service on the local Peer.
-//It should handle incoming messages, requests and stream requests for certain functionality,
-//e.g. "logger", "mysql_service", "auth_users" and so on
+//It should handle incoming messages, requests and stream requests for certain functionality
 type Role struct {
 	name           string
 	peer           *Peer
@@ -72,26 +71,26 @@ func (role *Role) Active() bool {
 	return role.active
 }
 
-//OnMessage registers handler for provided event. It does not support wildcard or regexp matching.
-//If you need to use middleware, consider Peer.OnMessage("", handler), Peer.OnMessage(event, handler), Role.OnMessage("", handler) instead.
-//Providing empty string as event sets handler for all messages of type "One way"
+//OnMessage registers message handler for provided event. It does not support wildcard or regexp matching.
+//Providing empty string as event sets handler for all messages despite the event
 func (role *Role) OnMessage(event string, handler func(im *MessageContext)) {
 	role.mwMessage.set(event, handler)
 }
 
-//OnRequest registers handler for provided event. It does not support wildcard or regexp matching.
-//If you need to use middleware, consider Peer.OnRequest("", handler), Peer.OnRequest(event, handler), Role.OnRequest("", handler) instead.
-//Providing empty string as event sets handler for all messages of type "request"
+//OnRequest registers request handler for provided event. It does not support wildcard or regexp matching.
+//Providing empty string as event sets handler for all requests despite the event
 func (role *Role) OnRequest(event string, handler func(im *RequestContext)) {
 	role.mwRequest.set(event, handler)
 }
 
-//OnReader ...
+//OnReader registers readable stream handler for provided event. It does not support wildcard or regexp matching.
+//Providing empty string as event sets handler for all requests despite the event
 func (role *Role) OnReader(event string, handler func(ctx *ReaderRequestContext)) {
 	role.mwReader.set(event, handler)
 }
 
-//OnWriter ...
+//OnWriter registers writable stream handler for provided event. It does not support wildcard or regexp matching.
+//Providing empty string as event sets handler for all requests despite the event
 func (role *Role) OnWriter(event string, handler func(ctx *WriterRequestContext)) {
 	role.mwWriter.set(event, handler)
 }

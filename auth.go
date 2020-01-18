@@ -140,9 +140,9 @@ func (peer *Peer) startAuthWSHandshake(conn *connLocker) (peerData, error) {
 	}
 }
 
-//AddKey adds provided authentication key with corresponded id. Only peers with matched id's will proceed to futher authentication. Peers without keys at all will approve each other by default.
+//AddKey adds provided authentication key with corresponded id. Only peers with matched id's will proceed to futher authentication. Peer without keys will approve remote peer (Unit).
 func (peer *Peer) AddKey(id, key string) {
-	peer.presharedKeys = append(peer.presharedKeys, PresharedKey{id, key})
+	peer.presharedKeys = append(peer.presharedKeys, presharedKey{id, key})
 }
 
 func (peer *Peer) generateChallengeWithIds() (msg, challenge string, err error) {

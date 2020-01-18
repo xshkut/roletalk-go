@@ -4,8 +4,8 @@ import (
 	"sync"
 )
 
-//PresharedKey is used for authentication. id is used to identify the key
-type PresharedKey struct {
+//presharedKey is used for authentication. id is used to identify the key
+type presharedKey struct {
 	id  string
 	key string
 }

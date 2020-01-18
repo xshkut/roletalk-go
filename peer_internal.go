@@ -145,7 +145,7 @@ func (peer *Peer) runOnRole(role *Role) {
 	}
 }
 
-//InvolveConn accepts conn for authentication and communication
+//InvolveConn accepts websocket.Conn for authentication and further communication
 func (peer *Peer) InvolveConn(c *websocket.Conn) (*Unit, error) {
 	conn := createConnLocker(c)
 	return peer.addConn(conn)

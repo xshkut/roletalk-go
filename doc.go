@@ -1,3 +1,5 @@
-//Package roletalk is asynchronous peer-to-peer microservice communication framework with its own transport protocol.
-//Developed in honor of scalability, simplicity and efficiency. For more information see readme.md
+//Package roletalk is asynchronous peer-to-peer communication framework for microservices with its own transport protocol.
+//It was developed in honor of scalability, simplicity and efficiency.
+//
+//For detailed overview and use case please refer to readme.md in project's repository.
 package roletalk

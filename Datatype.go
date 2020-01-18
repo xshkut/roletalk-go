@@ -1,8 +1,8 @@
 package roletalk
 
-//Datatype represents data type defined by roletalk protocol for communication.
+//Datatype represents type of data defined by roletalk communication protocol.
 //Can be checked with corresponding constants.
-//Implements https://golang.org/pkg/fmt/#Stringer interface
+//Implements Stringer (https://golang.org/pkg/fmt/#Stringer) interface
 type Datatype byte
 
 const (
