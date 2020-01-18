@@ -1,23 +1,24 @@
 # ROLETALK
+
 <!-- vscode-markdown-toc -->
-* 1. [Overview](#Overview)
-* 2. [Conception](#Conception)
-	* 2.1. [Structure](#Structure)
-	* 2.2. [Communication](#Communication)
-* 3. [Data types](#Datatypes)
-* 4. [Use case](#Usecase)
-* 5. [Features](#Features)
-	* 5.1. [Acquaintance](#Acquaintance)
-* 6. [Security](#Security)
-* 7. [Contribution](#Contribution)
+* [ Overview](#Overview)
+* [ Use case](#Usecase)
+* [ Features](#Features)
+* [ Concept](#Concept)
+	* [ Structure](#Structure)
+	* [ Communication](#Communication)
+* [ Data types](#Datatypes)
+	* [ Acquaintance](#Acquaintance)
+* [ Security](#Security)
+* [ Contribution](#Contribution)
 
 <!-- vscode-markdown-toc-config
-	numbering=true
+	numbering=false
 	autoSave=true
 	/vscode-markdown-toc-config -->
 <!-- /vscode-markdown-toc -->
 
-##  1. <a name='Overview'></a>Overview
+## <a name='Overview'></a> Overview
 
 Roletalk is peer-to-peer communication framework for microservices; asynchronous and event-driven.
 Developed in honor of scalability, simplicity and efficiency.
@@ -27,46 +28,7 @@ Essentially, it is peer-to-service framework, which allows you to create multipl
 Roletalk internally uses Websocket for data transferring as TCP framing tool with minimal network overhead.
 Currently there is corresponding wire-compatible JS framework.
 
-##  2. <a name='Conception'></a>Conception
-
-###  2.1. <a name='Structure'></a>Structure
-
-Roletalk concept consists of:
-
-- <b>Peer</b> - local node in your peer-to-peer architecture. Peer can have Units, Roles and Destinations.
-- <b>Unit</b> - remote node connected to the Peer
-- <b>Connection</b> - communication link between Peer and Unit. Each Unit can have one or more connections. If there are redunant connection, communications is load-balanced between them: checking which of them is not busy or choosing random one if no vacant one found. In case of last connection gets aborted Unit gets closed and removed from the Peer
-- <b>Role</b> - service registered on Peer. Role can have handlers for each communication type. Role can be <b>active</b> or <b>inactive</b>. When role changes its state all connected units get informed to rebuild their state
-- <b>Destination</b> - role registered on Units. Destination includes all connected units which serve corresponding role. If last Unit gets disconnected or disables the role, Destinations gets closed.
-All communications is performed via Destinations's methods and is load-balanced among its Units unless Unit is explicitly specified. Unit is chosen for each message / request / stream. 
-
-###  2.2. <a name='Communication'></a>Communication
-
-Roletalk defines three types of communication:
-
-- <b>Message</b> - one-way act of communication. Should be used when no delivery acknowledgement is needed. Successfully sent message means that it has been written to underlying socket
-- <b>Request</b> - request in common meaning. Request can only be rejected or replied. Returns error when Unit rejects it, timeout exceeds or Unit disconnects after request was sent.
-- <b>Stream</b> - one-way stream of binary data. Streams can be <b>Readable</b> and <b>Writable</b>. If Peer calls Readable (`Destination.Readable()`) then Units handle Writable (`Role.OnWritable()`) and vice-versa. Stream sessions begin with Request. After Unit replied for request, data is transferred over connection used for the reply. If  connection aborts stream destroys.
-
-Incoming messages are wrapped in <b>Context</b> - object with payload and meta info for all types of incoming messages (message, request, request for stream). 
-
-All communication is performed with two basic properties: <b>Role</b> and <b>Event</b> (name of action. Some synonyms in other frameworks: method, path, action) to identify which handler to call.
-When Unit gets message it forwards it to corresponding role or rejects it if such role isn't specified on the Peer. If role has no handlers for event it rejects it, otherwise call handlers.
-
-##  3. <a name='Datatypes'></a>Data types
-
-Roletalk uses six data types:
-
-- <b>Binary</b> - `[]byte`
-- <b>Null</b> - `nil`
-- <b>Bool</b> - `bool`
-- <b>String</b> - `string`
-- <b>Number</b> - `float64`
-- <b>Object</b> - `[]byte` of JSON-stringified object
-
-All communication (except stream sessions) can use data of any type. Type of data should be chosen on stage of designing microservice specification or retrieved by calling Context methods.
-
-##  4. <a name='Usecase'></a>Use case
+## <a name='Usecase'></a> Use case
 
 Choose roletalk if you need to build brokerless architecture. Such approach brings some advantages: minimal RTT (round-trip time), less network transferring, no SPOF (single point of failure). In some scenarios broker can be a bottleneck also.
 
@@ -79,9 +41,9 @@ Roletalk lets you implement flexible communication patterns:
 - Bus (many-to-many communication),
 - Survey (request-reply to multiple peers).
 
-##  5. <a name='Features'></a>Features
+## <a name='Features'></a> Features
 
-• Client as service 
+• Client as service.
 No matter who establish connection. Both listener and dialer of a connection are services.
 It allows you to deploy services not exposing them to the Internet or behind private network etc.
 Of course such instances should connect to listeners they have network access to.
@@ -102,7 +64,46 @@ With auto-reconnection this can be useful to keep connected two peers which are 
 
 • Scalable and simple in-built authentication: each peer can have zero or multiple ID:KEY combinations.
 
-###  5.1. <a name='Acquaintance'></a>Acquaintance
+## <a name='Concept'></a> Concept
+
+### <a name='Structure'></a> Structure
+
+Roletalk concept consists of:
+
+- <b>Peer</b> - local node in your peer-to-peer architecture. Peer can have Units, Roles and Destinations.
+- <b>Unit</b> - remote node connected to the Peer
+- <b>Connection</b> - communication link between Peer and Unit. Each Unit can have one or more connections. If there are redunant connection, communications is load-balanced between them: checking which of them is not busy or choosing random one if no vacant one found. In case of last connection gets aborted Unit gets closed and removed from the Peer
+- <b>Role</b> - service registered on Peer. Role can have handlers for each communication type. Role can be <b>active</b> or <b>inactive</b>. When role changes its state all connected units get informed to rebuild their state
+- <b>Destination</b> - role registered on Units. Destination includes all connected units which serve corresponding role. If last Unit gets disconnected or disables the role, Destinations gets closed.
+All communications is performed via Destinations's methods and is load-balanced among its Units unless Unit is explicitly specified. Unit is chosen for each message / request / stream. 
+
+### <a name='Communication'></a> Communication
+
+Roletalk defines three types of communication:
+
+- <b>Message</b> - one-way act of communication. Should be used when no delivery acknowledgement is needed. Successfully sent message means that it has been written to underlying socket
+- <b>Request</b> - request in common meaning. Request can only be rejected or replied. Returns error when Unit rejects it, timeout exceeds or Unit disconnects after request was sent.
+- <b>Stream</b> - one-way stream of binary data. Streams can be <b>Readable</b> and <b>Writable</b>. If Peer calls Readable (`Destination.Readable()`) then Units handle Writable (`Role.OnWritable()`) and vice-versa. Stream sessions begin with Request. After Unit replied for request, data is transferred over connection used for the reply. If  connection aborts stream destroys.
+
+Incoming messages are wrapped in <b>Context</b> - object with payload and meta info for all types of incoming messages (message, request, request for stream). 
+
+All communication is performed with two basic properties: <b>Role</b> and <b>Event</b> (name of action. Some synonyms in other frameworks: method, path, action) to identify which handler to call.
+When Unit gets message it forwards it to corresponding role or rejects it if such role isn't specified on the Peer. If role has no handlers for event it rejects it, otherwise call handlers.
+
+## <a name='Datatypes'></a> Data types
+
+Roletalk uses six data types:
+
+- <b>Binary</b> - `[]byte`
+- <b>Null</b> - `nil`
+- <b>Bool</b> - `bool`
+- <b>String</b> - `string`
+- <b>Number</b> - `float64`
+- <b>Object</b> - `[]byte` of JSON-stringified object
+
+All communication (except stream sessions) can use data of any type. Type of data should be chosen on stage of designing microservice specification or retrieved by calling Context methods.
+
+### <a name='Acquaintance'></a> Acquaintance
 
 One aditional feature of roletalk is acquaintance. It is could be considered as redunant but it nicely fits the use case of frameworks.
 
@@ -110,7 +111,7 @@ The process of it is simple. You have listener PEER_A which is connected to list
 
 Acquantance is enabled by default, but you can set Friendly option to FALSE to disable is.
 
-##  6. <a name='Security'></a>Security
+## <a name='Security'></a> Security
 
 To achieve strong MITM-protection use HTTPS.
 
@@ -128,7 +129,7 @@ The authentication process between two peers can be described in a simple few st
 
 5. In case of both peers confirm each others's RESPONSES the handshake process is complete and then connections take part in futher communication. If auth exceeds timeout or some peer sends error and/or closes connection handshake fails.
 
-##  7. <a name='Contribution'></a>Contribution
+## <a name='Contribution'></a> Contribution
 
 Project is MIT-licensed. 
 
