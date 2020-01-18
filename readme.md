@@ -1,11 +1,10 @@
 # ROLETALK
-
 <!-- vscode-markdown-toc -->
 * 1. [Overview](#Overview)
 * 2. [Conception](#Conception)
 	* 2.1. [Structure](#Structure)
-	* 2.2. [Communication:](#Communication:)
-* 3. [Data types:](#Datatypes:)
+	* 2.2. [Communication](#Communication)
+* 3. [Data types](#Datatypes)
 * 4. [Use case](#Usecase)
 * 5. [Features](#Features)
 	* 5.1. [Acquaintance](#Acquaintance)
@@ -41,7 +40,7 @@ Roletalk concept consists of:
 - <b>Destination</b> - role registered on Units. Destination includes all connected units which serve corresponding role. If last Unit gets disconnected or disables the role, Destinations gets closed.
 All communications is performed via Destinations's methods and is load-balanced among its Units unless Unit is explicitly specified. Unit is chosen for each message / request / stream. 
 
-###  2.2. <a name='Communication:'></a>Communication:
+###  2.2. <a name='Communication'></a>Communication
 
 Roletalk defines three types of communication:
 
@@ -54,7 +53,7 @@ Incoming messages are wrapped in <b>Context</b> - object with payload and meta i
 All communication is performed with two basic properties: <b>Role</b> and <b>Event</b> (name of action. Some synonyms in other frameworks: method, path, action) to identify which handler to call.
 When Unit gets message it forwards it to corresponding role or rejects it if such role isn't specified on the Peer. If role has no handlers for event it rejects it, otherwise call handlers.
 
-##  3. <a name='Datatypes:'></a>Data types:
+##  3. <a name='Datatypes'></a>Data types
 
 Roletalk uses six data types:
 
