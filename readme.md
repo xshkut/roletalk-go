@@ -1,6 +1,24 @@
 # ROLETALK
 
-## Overview
+<!-- vscode-markdown-toc -->
+* 1. [Overview](#Overview)
+* 2. [Conception](#Conception)
+	* 2.1. [Structure](#Structure)
+	* 2.2. [Communication:](#Communication:)
+* 3. [Data types:](#Datatypes:)
+* 4. [Use case](#Usecase)
+* 5. [Features](#Features)
+	* 5.1. [Acquaintance](#Acquaintance)
+* 6. [Security](#Security)
+* 7. [Contribution](#Contribution)
+
+<!-- vscode-markdown-toc-config
+	numbering=true
+	autoSave=true
+	/vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
+##  1. <a name='Overview'></a>Overview
 
 Roletalk is peer-to-peer communication framework for microservices; asynchronous and event-driven.
 Developed in honor of scalability, simplicity and efficiency.
@@ -8,12 +26,11 @@ Developed in honor of scalability, simplicity and efficiency.
 Essentially, it is peer-to-service framework, which allows you to create multiple services (roles) on single peer and communicate to them with ease.
 
 Roletalk internally uses Websocket for data transferring as TCP framing tool with minimal network overhead.
-
 Currently there is corresponding wire-compatible JS framework.
 
-## Conception
+##  2. <a name='Conception'></a>Conception
 
-### Structure
+###  2.1. <a name='Structure'></a>Structure
 
 Roletalk concept consists of:
 
@@ -24,7 +41,7 @@ Roletalk concept consists of:
 - <b>Destination</b> - role registered on Units. Destination includes all connected units which serve corresponding role. If last Unit gets disconnected or disables the role, Destinations gets closed.
 All communications is performed via Destinations's methods and is load-balanced among its Units unless Unit is explicitly specified. Unit is chosen for each message / request / stream. 
 
-### Communication:
+###  2.2. <a name='Communication:'></a>Communication:
 
 Roletalk defines three types of communication:
 
@@ -37,7 +54,7 @@ Incoming messages are wrapped in <b>Context</b> - object with payload and meta i
 All communication is performed with two basic properties: <b>Role</b> and <b>Event</b> (name of action. Some synonyms in other frameworks: method, path, action) to identify which handler to call.
 When Unit gets message it forwards it to corresponding role or rejects it if such role isn't specified on the Peer. If role has no handlers for event it rejects it, otherwise call handlers.
 
-## Data types:
+##  3. <a name='Datatypes:'></a>Data types:
 
 Roletalk uses six data types:
 
@@ -50,7 +67,7 @@ Roletalk uses six data types:
 
 All communication (except stream sessions) can use data of any type. Type of data should be chosen on stage of designing microservice specification or retrieved by calling Context methods.
 
-## Use case
+##  4. <a name='Usecase'></a>Use case
 
 Choose roletalk if you need to build brokerless architecture. Such approach brings some advantages: minimal RTT (round-trip time), less network transferring, no SPOF (single point of failure). In some scenarios broker can be a bottleneck also.
 
@@ -63,9 +80,10 @@ Roletalk lets you implement flexible communication patterns:
 - Bus (many-to-many communication),
 - Survey (request-reply to multiple peers).
 
-## Features
+##  5. <a name='Features'></a>Features
 
-• Client as service: no matter who establish connection. Both listener and dialer of a connection are services.
+• Client as service 
+No matter who establish connection. Both listener and dialer of a connection are services.
 It allows you to deploy services not exposing them to the Internet or behind private network etc.
 Of course such instances should connect to listeners they have network access to.
 
@@ -85,7 +103,7 @@ With auto-reconnection this can be useful to keep connected two peers which are 
 
 • Scalable and simple in-built authentication: each peer can have zero or multiple ID:KEY combinations.
 
-### Acquaintance
+###  5.1. <a name='Acquaintance'></a>Acquaintance
 
 One aditional feature of roletalk is acquaintance. It is could be considered as redunant but it nicely fits the use case of frameworks.
 
@@ -93,11 +111,11 @@ The process of it is simple. You have listener PEER_A which is connected to list
 
 Acquantance is enabled by default, but you can set Friendly option to FALSE to disable is.
 
-## Security
+##  6. <a name='Security'></a>Security
 
 To achieve strong MITM-protection use HTTPS.
 
-Package is provided with simple in-built authentication mechanism: preshared ID:KEY pairs. Peers which are supposed to be connected should have at least one common ID:KEY pair.
+Framework is provided with simple in-built authentication mechanism: preshared ID:KEY pairs. Peers which are supposed to be connected should have at least one common ID:KEY pair.
 
 The authentication process between two peers can be described in a simple few steps:
 
@@ -111,7 +129,7 @@ The authentication process between two peers can be described in a simple few st
 
 5. In case of both peers confirm each others's RESPONSES the handshake process is complete and then connections take part in futher communication. If auth exceeds timeout or some peer sends error and/or closes connection handshake fails.
 
-## Contribution
+##  7. <a name='Contribution'></a>Contribution
 
 Project is MIT-licensed. 
 
