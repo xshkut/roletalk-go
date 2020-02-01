@@ -27,7 +27,7 @@ Developed in honor of scalability, simplicity and efficiency.
 Essentially, it is peer-to-service framework, which allows you to create multiple services (roles) on single peer and communicate to them with ease.
 
 Roletalk internally uses Websocket for data transferring as TCP framing tool with minimal network overhead.
-Currently there is corresponding wire-compatible JS framework.
+Currently there is corresponding wire-compatible JS [framework](https://github.com/xshkut/roletalk-js).
 
 ## <a name='API'></a> API
 
