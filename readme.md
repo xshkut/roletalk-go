@@ -2,12 +2,13 @@
 
 <!-- vscode-markdown-toc -->
 * [ Overview](#Overview)
+* [ API](#API)
 * [ Use case](#Usecase)
 * [ Features](#Features)
 * [ Concept](#Concept)
 	* [ Structure](#Structure)
 	* [ Communication](#Communication)
-* [ Data types](#Datatypes)
+	* [ Data types](#Datatypes)
 	* [ Acquaintance](#Acquaintance)
 * [ Security](#Security)
 * [ Contribution](#Contribution)
@@ -27,6 +28,10 @@ Essentially, it is peer-to-service framework, which allows you to create multipl
 
 Roletalk internally uses Websocket for data transferring as TCP framing tool with minimal network overhead.
 Currently there is corresponding wire-compatible JS framework.
+
+## <a name='API'></a> API
+
+API referrence is available on [GoDoc](https://godoc.org/github.com/xshkut/roletalk-go)
 
 ## <a name='Usecase'></a> Use case
 
@@ -90,7 +95,7 @@ Incoming messages are wrapped in <b>Context</b> - object with payload and meta i
 All communication is performed with two basic properties: <b>Role</b> and <b>Event</b> (name of action. Some synonyms in other frameworks: method, path, action) to identify which handler to call.
 When Unit gets message it forwards it to corresponding role or rejects it if such role isn't specified on the Peer. If role has no handlers for event it rejects it, otherwise call handlers.
 
-## <a name='Datatypes'></a> Data types
+### <a name='Datatypes'></a> Data types
 
 Roletalk uses six data types:
 
