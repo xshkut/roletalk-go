@@ -24,10 +24,8 @@ func (dest *Destination) addUnit(unit *Unit) {
 	}
 	dest.stateMutex.Lock()
 	dest.units[unit] = struct{}{}
-	if len(dest.units) == 1 {
-		dest.ready = true
-		go dest.runOnUnit(unit)
-	}
+	dest.ready = true
+	go dest.runOnUnit(unit)
 	dest.stateMutex.Unlock()
 }
 
